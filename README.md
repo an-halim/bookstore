@@ -19,6 +19,8 @@ The supplied `.env.example` already selects SQLite. Use `php artisan test --comp
 
 All endpoints use the `/api` prefix and return JSON. List endpoints are paginated (15 records per page).
 
+The interactive API reference is available at `/docs`. The machine-readable OpenAPI specification is at `/openapi.json`.
+
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET, POST | `/api/categories` | List or create categories |
