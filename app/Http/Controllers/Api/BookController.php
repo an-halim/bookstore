@@ -67,6 +67,8 @@ class BookController extends Controller
 
     public function destroy(Book $book): Response
     {
+        abort_if($book->loans()->exists(), 409, 'Book has loan history.');
+
         $book->delete();
 
         return response()->noContent();
