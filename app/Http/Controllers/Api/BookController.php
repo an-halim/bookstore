@@ -67,9 +67,12 @@ class BookController extends Controller
 
     public function destroy(Book $book): Response
     {
-        abort_if($book->loans()->exists(), 409, 'Book has loan history.');
+        DB::transaction(function () use ($book): void {
+            $lockedBook = Book::query()->lockForUpdate()->findOrFail($book->id);
+            abort_if($lockedBook->loans()->whereNull('returned_at')->exists(), 409, 'Book has active loans.');
 
-        $book->delete();
+            $lockedBook->delete();
+        });
 
         return response()->noContent();
     }

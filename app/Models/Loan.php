@@ -16,7 +16,7 @@ class Loan extends Model
 
     public function book(): BelongsTo
     {
-        return $this->belongsTo(Book::class);
+        return $this->belongsTo(Book::class)->withTrashed();
     }
 
     protected function casts(): array

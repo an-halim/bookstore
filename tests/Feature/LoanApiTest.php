@@ -13,12 +13,19 @@ it('lends an available book and lists active loans', function () {
         'book_id' => $book->id,
         'borrower_name' => 'Rina',
         'borrower_email' => 'rina@example.com',
-    ])->assertCreated()->assertJsonPath('data.book.id', $book->id);
+    ])->assertCreated()
+        ->assertJsonPath('data.book.id', $book->id)
+        ->assertJsonMissingPath('data.borrower_name')
+        ->assertJsonMissingPath('data.borrower_email');
 
-    $this->getJson('/api/loans')->assertOk()->assertJsonPath('data.0.borrower_name', 'Rina');
+    $this->getJson('/api/loans')
+        ->assertOk()
+        ->assertJsonPath('data.0.book.id', $book->id)
+        ->assertJsonMissingPath('data.0.borrower_name');
 
     $this->getJson('/api/loans/'.$response->json('data.id'))
         ->assertOk()
+        ->assertJsonMissingPath('data.borrower_name')
         ->assertJsonMissingPath('data.borrower_email');
 
     $this->assertDatabaseHas('books', ['id' => $book->id, 'available_copies' => 0]);
@@ -86,11 +93,39 @@ it('does not shrink inventory below borrowed copies', function () {
     $this->assertDatabaseHas('books', ['id' => $book->id, 'total_copies' => 2, 'available_copies' => 0]);
 });
 
-it('keeps books with loan history', function () {
+it('rejects archiving a book with an active loan', function () {
     $book = Book::factory()->create();
     Loan::factory()->for($book)->create();
 
     $this->deleteJson("/api/books/{$book->id}")->assertStatus(409);
 
     $this->assertModelExists($book);
+});
+
+it('archives a returned book while preserving its loan history', function () {
+    $book = Book::factory()->create();
+    $loan = Loan::factory()->for($book)->create(['returned_at' => now()]);
+
+    $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
+    $this->getJson("/api/books/{$book->id}")->assertNotFound();
+    $this->getJson('/api/books')->assertOk()->assertJsonCount(0, 'data');
+    $this->getJson("/api/loans/{$loan->id}")
+        ->assertOk()
+        ->assertJsonPath('data.book.id', $book->id);
+
+    $this->assertSoftDeleted($book);
+    $this->assertModelExists($loan);
+});
+
+it('rejects borrowing an archived book', function () {
+    $book = Book::factory()->create();
+    $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
+
+    $this->postJson('/api/loans', [
+        'book_id' => $book->id,
+        'borrower_name' => 'Rina',
+        'borrower_email' => 'rina@example.com',
+    ])->assertUnprocessable()->assertJsonValidationErrors('book_id');
+
+    $this->assertDatabaseCount('loans', 0);
 });
