@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Bookstore API",
-    "version": "1.0.0",
-    "description": "Manage book categories, catalog inventory, borrowing, and returns. Authentication is not part of this technical exercise."
+    "version": "1.1.0",
+    "description": "Manage book categories, catalog inventory, borrowing, and returns with bearer token authentication. Admins manage the catalog; users manage their own loans."
   },
   "servers": [
     {
@@ -12,6 +12,9 @@
     }
   ],
   "tags": [
+    {
+      "name": "Auth"
+    },
     {
       "name": "Categories"
     },
@@ -63,8 +66,19 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/categories/{category}": {
@@ -106,8 +120,19 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "put": {
         "tags": [
@@ -127,8 +152,19 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -145,8 +181,19 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/books": {
@@ -190,8 +237,19 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/books/{book}": {
@@ -237,8 +295,19 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "put": {
         "tags": [
@@ -262,8 +331,19 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -281,8 +361,19 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/loans": {
@@ -291,7 +382,7 @@
           "Loans"
         ],
         "summary": "List active loans",
-        "description": "Returned loans are excluded.",
+        "description": "Users see only their active loans. Admins see all active loans, including legacy loans.",
         "operationId": "listActiveLoans",
         "parameters": [
           {
@@ -308,15 +399,23 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/LoanList"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "post": {
         "tags": [
           "Loans"
         ],
         "summary": "Borrow one copy",
-        "description": "Borrower name and email are stored but omitted from public responses.",
+        "description": "The authenticated user becomes the borrower. Borrower name and email are copied from the account and omitted from public responses.",
         "operationId": "borrowBook",
         "requestBody": {
           "$ref": "#/components/requestBodies/LoanCreate"
@@ -330,8 +429,16 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/loans/{loan}": {
@@ -345,7 +452,7 @@
           "Loans"
         ],
         "summary": "Get a loan",
-        "description": "Returned loans remain available by ID.",
+        "description": "Users can read their own loan. Admins can read any loan, including returned and legacy loans. Other users receive 404.",
         "operationId": "getLoan",
         "responses": {
           "200": {
@@ -353,8 +460,16 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/api/loans/{loan}/return": {
@@ -378,6 +493,109 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Users can return their own loan. Admins can return any loan. Other users receive 404."
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register as a regular user",
+        "description": "Role input is ignored. Admin access is granted only through the local users:set-role command.",
+        "operationId": "register",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Register"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/AuthCreated"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log in and issue a token",
+        "operationId": "login",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Login"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Auth"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get the authenticated user",
+        "operationId": "getAuthenticatedUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/User"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Revoke the current token",
+        "operationId": "logout",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
@@ -460,6 +678,26 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/LoanCreate"
+            }
+          }
+        }
+      },
+      "Register": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RegisterInput"
+            }
+          }
+        }
+      },
+      "Login": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LoginInput"
             }
           }
         }
@@ -650,23 +888,12 @@
       "LoanCreate": {
         "type": "object",
         "required": [
-          "book_id",
-          "borrower_name",
-          "borrower_email"
+          "book_id"
         ],
         "properties": {
           "book_id": {
             "type": "integer",
             "minimum": 1
-          },
-          "borrower_name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "borrower_email": {
-            "type": "string",
-            "format": "email",
-            "maxLength": 255
           }
         }
       },
@@ -687,6 +914,107 @@
                 "type": "string"
               }
             }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Rina"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "rina@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ]
+          }
+        }
+      },
+      "AuthResult": {
+        "type": "object",
+        "required": [
+          "data",
+          "token"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/User"
+          },
+          "token": {
+            "type": "string",
+            "description": "Plain text token shown only when issued; expires after seven days."
+          }
+        }
+      },
+      "RegisterInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password",
+          "password_confirmation"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8
+          },
+          "password_confirmation": {
+            "type": "string",
+            "format": "password"
+          },
+          "device_name": {
+            "type": "string",
+            "maxLength": 255
+          }
+        }
+      },
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "device_name": {
+            "type": "string",
+            "maxLength": 255
           }
         }
       }
@@ -827,7 +1155,7 @@
         }
       },
       "LoanList": {
-        "description": "Paginated active loans",
+        "description": "Active loans owned by the current user, or all active loans for an admin",
         "content": {
           "application/json": {
             "schema": {
@@ -925,6 +1253,82 @@
             }
           }
         }
+      },
+      "User": {
+        "description": "Authenticated user",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Auth": {
+        "description": "Authenticated with a new token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AuthResult"
+            }
+          }
+        }
+      },
+      "AuthCreated": {
+        "description": "Registered with a new token",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AuthResult"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication required or credentials invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Admin role required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Too many requests",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Sanctum token",
+        "description": "Use the token returned by registration or login."
       }
     }
   }

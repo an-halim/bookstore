@@ -2,11 +2,15 @@
 
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
 it('creates and lists books with their categories', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $category = Category::factory()->create();
 
     $this->postJson('/api/books', [
@@ -24,6 +28,8 @@ it('creates and lists books with their categories', function () {
 });
 
 it('rejects an unknown category and duplicate ISBN', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $book = Book::factory()->create();
 
     $this->postJson('/api/books', [
@@ -38,6 +44,8 @@ it('rejects an unknown category and duplicate ISBN', function () {
 });
 
 it('updates and deletes a book', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $book = Book::factory()->create();
 
     $this->patchJson("/api/books/{$book->id}", ['title' => 'New Title', 'total_copies' => 5])
@@ -51,6 +59,8 @@ it('updates and deletes a book', function () {
 });
 
 it('keeps a category that still contains books', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $book = Book::factory()->create();
 
     $this->deleteJson("/api/categories/{$book->category_id}")->assertStatus(409);
@@ -59,6 +69,8 @@ it('keeps a category that still contains books', function () {
 });
 
 it('keeps a category referenced by an archived book', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $book = Book::factory()->create();
 
     $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
@@ -68,6 +80,8 @@ it('keeps a category referenced by an archived book', function () {
 });
 
 it('reserves the ISBN of an archived book', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $book = Book::factory()->create();
     $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
 

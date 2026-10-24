@@ -38,6 +38,27 @@ it('resolves every OpenAPI component reference', function () {
     }
 });
 
+it('marks authenticated routes as secured in OpenAPI', function () {
+    $specification = json_decode(file_get_contents(public_path('openapi.json')), true, flags: JSON_THROW_ON_ERROR);
+
+    foreach (Route::getRoutes() as $route) {
+        if (! str_starts_with($route->uri(), 'api/')) {
+            continue;
+        }
+
+        $requiresToken = in_array('auth:sanctum', $route->gatherMiddleware());
+
+        foreach ($route->methods() as $method) {
+            if ($method === 'HEAD') {
+                continue;
+            }
+
+            $security = $specification['paths']['/'.$route->uri()][strtolower($method)]['security'] ?? [];
+            expect($security !== [])->toBe($requiresToken);
+        }
+    }
+});
+
 it('renders the interactive API reference', function () {
     $this->get('/docs')
         ->assertOk()

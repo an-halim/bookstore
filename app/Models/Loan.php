@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['book_id', 'borrower_name', 'borrower_email', 'borrowed_at', 'returned_at'])]
+#[Fillable(['book_id', 'user_id', 'borrower_name', 'borrower_email', 'borrowed_at', 'returned_at'])]
 class Loan extends Model
 {
     /** @use HasFactory<LoanFactory> */
@@ -17,6 +17,11 @@ class Loan extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class)->withTrashed();
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     protected function casts(): array
