@@ -1,11 +1,15 @@
 <?php
 
 use App\Models\Category;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
 it('creates and lists categories', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $this->postJson('/api/categories', ['name' => 'Fiction', 'description' => 'Novels'])
         ->assertCreated()
         ->assertJsonPath('data.name', 'Fiction');
@@ -18,6 +22,8 @@ it('creates and lists categories', function () {
 });
 
 it('rejects duplicate category names', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     Category::factory()->create(['name' => 'Fiction']);
 
     $this->postJson('/api/categories', ['name' => 'Fiction'])
@@ -28,6 +34,8 @@ it('rejects duplicate category names', function () {
 });
 
 it('updates and deletes a category', function () {
+    Sanctum::actingAs(User::factory()->admin()->create());
+
     $category = Category::factory()->create();
 
     $this->patchJson("/api/categories/{$category->id}", ['name' => 'History'])
