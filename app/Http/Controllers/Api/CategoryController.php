@@ -46,6 +46,8 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): Response
     {
+        abort_if($category->books()->exists(), 409, 'Category still has books.');
+
         $category->delete();
 
         return response()->noContent();
