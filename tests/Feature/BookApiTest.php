@@ -46,7 +46,8 @@ it('updates and deletes a book', function () {
 
     $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
 
-    $this->assertDatabaseMissing('books', ['id' => $book->id]);
+    $this->assertSoftDeleted($book);
+    $this->getJson("/api/books/{$book->id}")->assertNotFound();
 });
 
 it('keeps a category that still contains books', function () {
@@ -55,4 +56,28 @@ it('keeps a category that still contains books', function () {
     $this->deleteJson("/api/categories/{$book->category_id}")->assertStatus(409);
 
     $this->assertModelExists($book->category);
+});
+
+it('keeps a category referenced by an archived book', function () {
+    $book = Book::factory()->create();
+
+    $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
+    $this->deleteJson("/api/categories/{$book->category_id}")->assertStatus(409);
+
+    $this->assertModelExists($book->category);
+});
+
+it('reserves the ISBN of an archived book', function () {
+    $book = Book::factory()->create();
+    $this->deleteJson("/api/books/{$book->id}")->assertNoContent();
+
+    $this->postJson('/api/books', [
+        'category_id' => $book->category_id,
+        'title' => 'Another Copy',
+        'author' => 'Another Author',
+        'isbn' => $book->isbn,
+        'total_copies' => 1,
+    ])->assertUnprocessable()->assertJsonValidationErrors('isbn');
+
+    $this->assertDatabaseCount('books', 1);
 });

@@ -269,7 +269,8 @@
         "tags": [
           "Books"
         ],
-        "summary": "Delete a book without loan history",
+        "summary": "Archive a book without active loans",
+        "description": "Archived books disappear from the catalog but remain available through loan history. Their ISBN remains reserved.",
         "operationId": "deleteBook",
         "responses": {
           "204": {
@@ -315,7 +316,7 @@
           "Loans"
         ],
         "summary": "Borrow one copy",
-        "description": "Borrower email is stored but omitted from responses.",
+        "description": "Borrower name and email are stored but omitted from public responses.",
         "operationId": "borrowBook",
         "requestBody": {
           "$ref": "#/components/requestBodies/LoanCreate"
@@ -536,7 +537,6 @@
         "required": [
           "id",
           "book",
-          "borrower_name",
           "borrowed_at",
           "returned_at"
         ],
@@ -547,10 +547,6 @@
           },
           "book": {
             "$ref": "#/components/schemas/Book"
-          },
-          "borrower_name": {
-            "type": "string",
-            "example": "Rina"
           },
           "borrowed_at": {
             "type": "string",

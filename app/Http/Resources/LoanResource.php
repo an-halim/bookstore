@@ -17,7 +17,6 @@ class LoanResource extends JsonResource
         return [
             'id' => $this->id,
             'book' => new BookResource($this->whenLoaded('book')),
-            'borrower_name' => $this->borrower_name,
             'borrowed_at' => $this->borrowed_at->toISOString(),
             'returned_at' => $this->returned_at?->toISOString(),
         ];

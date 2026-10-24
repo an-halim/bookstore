@@ -9,6 +9,7 @@ use App\Models\Loan;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class LoanController extends Controller
 {
@@ -27,7 +28,7 @@ class LoanController extends Controller
     public function store(Request $request): LoanResource
     {
         $data = $request->validate([
-            'book_id' => ['required', 'integer', 'exists:books,id'],
+            'book_id' => ['required', 'integer', Rule::exists('books', 'id')->withoutTrashed()],
             'borrower_name' => ['required', 'string', 'max:255'],
             'borrower_email' => ['required', 'email', 'max:255'],
         ]);
