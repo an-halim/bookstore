@@ -1,0 +1,935 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bookstore API",
+    "version": "1.0.0",
+    "description": "Manage book categories, catalog inventory, borrowing, and returns. Authentication is not part of this technical exercise."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current host"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Categories"
+    },
+    {
+      "name": "Books"
+    },
+    {
+      "name": "Loans"
+    }
+  ],
+  "paths": {
+    "/api/categories": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "List categories",
+        "operationId": "listCategories",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/CategoryList"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Create a category",
+        "operationId": "createCategory",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CategoryCreate"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/CategoryCreated"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/categories/{category}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/CategoryId"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Get a category",
+        "operationId": "getCategory",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Category"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Update a category",
+        "operationId": "updateCategory",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CategoryUpdate"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Category"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Update a category",
+        "operationId": "updateCategoryPut",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CategoryUpdate"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Category"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Delete an empty category",
+        "operationId": "deleteCategory",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/books": {
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "List books",
+        "operationId": "listBooks",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/BookList"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Create a book",
+        "description": "Available copies initially equal total copies.",
+        "operationId": "createBook",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BookCreate"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/BookCreated"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/books/{book}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/BookId"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Get a book",
+        "operationId": "getBook",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Book"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Update a book",
+        "description": "Total copies cannot be reduced below the number currently borrowed.",
+        "operationId": "updateBook",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BookUpdate"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Book"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Update a book",
+        "description": "Total copies cannot be reduced below the number currently borrowed.",
+        "operationId": "updateBookPut",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/BookUpdate"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Book"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Books"
+        ],
+        "summary": "Delete a book without loan history",
+        "operationId": "deleteBook",
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/loans": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "List active loans",
+        "description": "Returned loans are excluded.",
+        "operationId": "listActiveLoans",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/LoanList"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Borrow one copy",
+        "description": "Borrower email is stored but omitted from responses.",
+        "operationId": "borrowBook",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/LoanCreate"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/LoanCreated"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/loans/{loan}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/LoanId"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Get a loan",
+        "description": "Returned loans remain available by ID.",
+        "operationId": "getLoan",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Loan"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/loans/{loan}/return": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/LoanId"
+        }
+      ],
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Return one borrowed copy",
+        "operationId": "returnBook",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Loan"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "CategoryId": {
+        "name": "category",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "BookId": {
+        "name": "book",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "LoanId": {
+        "name": "loan",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "requestBodies": {
+      "CategoryCreate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CategoryCreate"
+            }
+          }
+        }
+      },
+      "CategoryUpdate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CategoryUpdate"
+            }
+          }
+        }
+      },
+      "BookCreate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BookCreate"
+            }
+          }
+        }
+      },
+      "BookUpdate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/BookUpdate"
+            }
+          }
+        }
+      },
+      "LoanCreate": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/LoanCreate"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Category": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Fiction"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Novels"
+          }
+        }
+      },
+      "Book": {
+        "type": "object",
+        "required": [
+          "id",
+          "category",
+          "title",
+          "author",
+          "isbn",
+          "total_copies",
+          "available_copies"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "title": {
+            "type": "string",
+            "example": "Clean Code"
+          },
+          "author": {
+            "type": "string",
+            "example": "Robert C. Martin"
+          },
+          "isbn": {
+            "type": "string",
+            "example": "9780132350884"
+          },
+          "total_copies": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 3
+          },
+          "available_copies": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 2
+          }
+        }
+      },
+      "Loan": {
+        "type": "object",
+        "required": [
+          "id",
+          "book",
+          "borrower_name",
+          "borrowed_at",
+          "returned_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "book": {
+            "$ref": "#/components/schemas/Book"
+          },
+          "borrower_name": {
+            "type": "string",
+            "example": "Rina"
+          },
+          "borrowed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "returned_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "CategoryCreate": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CategoryUpdate": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BookCreate": {
+        "type": "object",
+        "required": [
+          "category_id",
+          "title",
+          "author",
+          "isbn",
+          "total_copies"
+        ],
+        "properties": {
+          "category_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "isbn": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "total_copies": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "BookUpdate": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "category_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "isbn": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "total_copies": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "LoanCreate": {
+        "type": "object",
+        "required": [
+          "book_id",
+          "borrower_name",
+          "borrower_email"
+        ],
+        "properties": {
+          "book_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "borrower_name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "borrower_email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 255
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "CategoryList": {
+        "description": "Paginated categories",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                },
+                "links": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "meta": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "Category": {
+        "description": "Category",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CategoryCreated": {
+        "description": "Category created",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BookList": {
+        "description": "Paginated books",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Book"
+                  }
+                },
+                "links": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "meta": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "Book": {
+        "description": "Book",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BookCreated": {
+        "description": "Book created",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      },
+      "LoanList": {
+        "description": "Paginated active loans",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data",
+                "links",
+                "meta"
+              ],
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Loan"
+                  }
+                },
+                "links": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "meta": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "Loan": {
+        "description": "Loan",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          }
+        }
+      },
+      "LoanCreated": {
+        "description": "Loan created",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "data"
+              ],
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NoContent": {
+        "description": "Deleted successfully"
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Operation conflicts with current inventory or loan state",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
